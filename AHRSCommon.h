@@ -1,4 +1,11 @@
 /*
+ * Name: AHRSCommon.h
+ * Use: Shared AHRS input/output data types and helper math used by the attitude filters.
+ * Version: 4.0.0
+ * Created by: Durvesh Pathak dp676@cornell.edu
+ */
+
+/*
   AHRSCommon.h
   Common attitude data structures and helpers for the Test_Quad flight controller.
 

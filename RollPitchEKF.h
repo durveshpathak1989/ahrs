@@ -1,4 +1,11 @@
 /*
+ * Name: RollPitchEKF.h
+ * Use: Declaration for the lightweight roll/pitch EKF estimator.
+ * Version: 4.0.0
+ * Created by: Durvesh Pathak dp676@cornell.edu
+ */
+
+/*
   RollPitchEKF.h
   Small roll/pitch EKF-style estimator for Test_Quad.
 

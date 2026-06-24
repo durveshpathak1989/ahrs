@@ -1,3 +1,10 @@
+/*
+ * Name: RollPitchEKF.cpp
+ * Use: Implementation of the lightweight roll/pitch EKF estimator.
+ * Version: 4.0.0
+ * Created by: Durvesh Pathak dp676@cornell.edu
+ */
+
 #include "RollPitchEKF.h"
 
 RollPitchEKF::RollPitchEKF()
