@@ -1,5 +1,9 @@
 # Test Quad AHRS Library
 
+## Explain It Simply
+
+This module is the drone's balance sense. It takes numbers from the motion sensor and turns them into simple answers: how much the drone is leaning left or right, nose up or down, and which way it is pointing. The flight controller uses those answers to keep the drone level.
+
 AHRS means Attitude and Heading Reference System. This library contains the common attitude data structures plus three standalone estimators used by the flight controller: `MahonyAHRS`, `MadgwickAHRS`, and `RollPitchEKF`. The production firmware can also select `AttitudeEKF`, which lives in the sibling `EKF` repository but uses the same `AHRSInput` and `AttitudeEstimate` types.
 
 ## Files
