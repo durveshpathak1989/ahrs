@@ -4,16 +4,22 @@
 
 This module is the drone's balance sense. It takes numbers from the motion sensor and turns them into simple answers: how much the drone is leaning left or right, nose up or down, and which way it is pointing. The flight controller uses those answers to keep the drone level.
 
-AHRS means Attitude and Heading Reference System. This library contains the common attitude data structures plus three standalone estimators used by the flight controller: `MahonyAHRS`, `MadgwickAHRS`, and `RollPitchEKF`. The production firmware can also select `AttitudeEKF`, which lives in the sibling `EKF` repository but uses the same `AHRSInput` and `AttitudeEstimate` types.
+AHRS means Attitude and Heading Reference System. This library contains the common attitude data structures and the lightweight `RollPitchEKF` estimator. The production firmware can also select `AttitudeEKF`, `MahonyAHRS`, or `MadgwickAHRS`; those filters live in sibling repositories but use the same `AHRSInput` and `AttitudeEstimate` types.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
 | `AHRSCommon.h` | Shared input/output structs, angle wrapping helpers, quaternion-to-Euler conversion, accel tilt helpers. |
-| `MahonyAHRS.h/.cpp` | Quaternion complementary AHRS with proportional/integral gyro correction. |
-| `MadgwickAHRS.h/.cpp` | Gradient-descent IMU attitude filter. The current implementation uses accel + gyro first for robustness. |
 | `RollPitchEKF.h/.cpp` | Lightweight 4-state roll/pitch estimator for bench comparison and angle-mode testing. |
+
+Sibling filter modules:
+
+| Module | Purpose |
+| --- | --- |
+| `../MahonyAHRS` | Quaternion complementary AHRS with proportional/integral gyro correction. |
+| `../Madgwick` | Gradient-descent IMU attitude filter. |
+| `../EKF` | Full attitude EKF used as the default flight filter. |
 
 ## Pin Map
 
@@ -44,9 +50,9 @@ Use the AHRS types in the sketch by including the estimator headers, creating on
 
 ```cpp
 #include "AHRSCommon.h"
-#include "MahonyAHRS.h"
-#include "MadgwickAHRS.h"
 #include "RollPitchEKF.h"
+#include "../MahonyAHRS/MahonyAHRS.h"
+#include "../Madgwick/MadgwickAHRS.h"
 #include "AttitudeEKF.h"   // From the sibling EKF library.
 
 MahonyAHRS mahony;
@@ -117,11 +123,11 @@ if (rollPitchEKF.update(in, dt, rpOut)) {
 
 ### Mahony
 
-Use this when you want a simple quaternion complementary filter. The implementation accepts `MPU_SensorData` and uses 9-DOF when magnetometer data is valid, otherwise it falls back to 6-DOF.
+Use this when you want a simple quaternion complementary filter. The implementation accepts `AHRSInput` or `MPU_SensorData` and uses 9-DOF when magnetometer data is valid, otherwise it falls back to 6-DOF.
 
 ```cpp
 AttitudeEstimate mahonyOut;
-if (mahony.update(sf, dt, mahonyOut)) {
+if (mahony.update(in, dt, mahonyOut)) {
     att = mahonyOut;
 }
 ```
@@ -147,7 +153,7 @@ The main firmware exposes `ahrs_filter_mode`: `0=EKF`, `1=Mahony`, `2=Madgwick`.
 uint8_t ahrsMode = constrain((int)roundf(g_tuning.ahrs_filter_mode), 0, 2);
 
 if (ahrsMode == 1) {
-    mahony.update(sf, dt, att);
+    mahony.update(in, dt, att);
 } else if (ahrsMode == 2) {
     madgwickAHRS.update(in, dt, att);
 } else {
